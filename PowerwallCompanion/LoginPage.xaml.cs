@@ -1,6 +1,4 @@
-﻿using Microsoft.UI.Xaml.Controls;
-using Microsoft.Web.WebView2.Core;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,12 +28,12 @@ namespace PowerwallCompanion
     /// </summary>
     public sealed partial class LoginPage : Page
     {
-        private TeslaAuthHelper teslaAuth = new TeslaAuthHelper("PowerwallCompanion/1.0");
+        private TeslaAuthHelper teslaAuth = new TeslaAuthHelper("PowerwallCompanionX/0.0");
 
         public LoginPage()
         {
             this.InitializeComponent();
-            this.NavigationCacheMode = NavigationCacheMode.Disabled;
+            this.NavigationCacheMode = NavigationCacheMode.Enabled;
             authFailureMessage.Visibility = Visibility.Collapsed;
             if (Settings.UseLocalGateway)
             {
@@ -47,78 +45,51 @@ namespace PowerwallCompanion
                 teslaAccountRadioButton.IsChecked = true;
 
             }
-        }
-
-        private void webView_CoreWebView2Initialized(WebView2 sender, CoreWebView2InitializedEventArgs args)
-        {
-            webView.EnsureCoreWebView2Async().AsTask().GetAwaiter().GetResult();
-            webView.CoreWebView2.CookieManager.DeleteAllCookies();
-            webView.Visibility = Visibility.Visible;
+            WebView.ClearTemporaryWebDataAsync().AsTask().GetAwaiter().GetResult();
             webView.Source = new Uri(teslaAuth.GetLoginUrlForBrowser());
+
         }
-
-
-
-        private async void webView_NavigationStarting(WebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs args)
+        private void webView_NavigationStarting(WebView sender, WebViewNavigationStartingEventArgs args)
         {
             var url = args.Uri.ToString();
             if (url.Contains("void/callback"))
             {
-                webView.Visibility = Visibility.Collapsed;
-                await CompleteLogin(url);
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    UpdateMenuButtons();
-                    this.Frame.Navigate(typeof(HomePage));
-                });
-
-
+                var t = Task.Run(() => CompleteLogin(url));
+                t.Wait();
+                UpdateMenuButtons();
+                this.Frame.Navigate(typeof(HomePage));
+      
             }
 
         }
 
-
         private async Task CompleteLogin(string url)
         {
-            var tokens = await teslaAuth.GetTokenAfterLoginAsync(url);
+            var tokens = await teslaAuth.GetTokenAfterLogin(url);
             Settings.AccessToken = tokens.AccessToken;
             Settings.RefreshToken = tokens.RefreshToken;
             Settings.SignInName = "Tesla User";
             Settings.UseLocalGateway = false;
             await GetSiteId();
+
+            
         }
 
-
+        
 
         private async Task GetSiteId()
         {
             var productsResponse = await ApiHelper.CallGetApiWithTokenRefresh(ApiHelper.BaseUrl + "/api/1/products", "Products");
-            var availableSites = new Dictionary<string, string>();
-            bool foundSite = false;
             foreach (var product in productsResponse["response"])
             {
                 if (product["resource_type"]?.Value<string>() == "battery" && product["energy_site_id"] != null)
                 {
-                    var siteName = product["site_name"].Value<string>();
                     var id = product["energy_site_id"].Value<long>();
-                    if (!foundSite)
-                    {
-                        Settings.SiteId = id.ToString();
-                        foundSite = true;
-                    }
-                    availableSites.Add(id.ToString(), siteName);
-
+                    Settings.SiteId = id.ToString();
+                    return;
                 }
             }
-            if (foundSite)
-            {
-                Settings.AvailableSites = availableSites;
-            }
-            else
-            {
-                throw new Exception("Powerwall site not found");
-            }
-
+            throw new Exception("Powerwall site not found");
         }
 
 
@@ -171,15 +142,6 @@ namespace PowerwallCompanion
             localGatewaySignInControls.Visibility = Visibility.Visible;
         }
 
-        private async void TextBlock_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-        {
-            // Sign in as demo user
-            Settings.AccessToken = "DEMO";
-            Settings.RefreshToken = "DEMO";
-            Settings.SignInName = "Demo User";
-            Settings.UseLocalGateway = false;
-            await GetSiteId();
-            this.Frame.Navigate(typeof(HomePage));
-        }
+
     }
 }

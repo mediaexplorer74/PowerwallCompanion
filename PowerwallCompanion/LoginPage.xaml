@@ -5,19 +5,18 @@
     xmlns:local="using:PowerwallCompanion"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:winui="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <StackPanel Orientation="Vertical">
-            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" DoubleTapped="TextBlock_DoubleTapped">Connect to Powerwall</TextBlock>
-            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Margin="5" Visibility="Collapsed">
+            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}">Connect to Powerwall</TextBlock>
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Margin="5">
                 <RadioButton x:Name="teslaAccountRadioButton" Checked="TeslaAccountRadioButton_Checked">Tesla Account</RadioButton>
                 <RadioButton x:Name="localGatwayRadioButton" Checked="LocalGatwayRadioButton_Checked">Local Gateway</RadioButton>
             </StackPanel>
             <Grid Padding="10" x:Name="teslaAccountSignInControls">
-
-                <winui:WebView2 Width="Auto" Height="500" x:Name="webView" NavigationStarting="webView_NavigationStarting"  CoreWebView2Initialized="webView_CoreWebView2Initialized" />
+               
+                <WebView Width="Auto" Height="500" x:Name="webView" NavigationStarting="webView_NavigationStarting"/>
             </Grid>
 
             <Grid Padding="10" x:Name="localGatewaySignInControls" Visibility="Collapsed">

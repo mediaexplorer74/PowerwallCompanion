@@ -98,6 +98,8 @@
                             ScaleBrush="DimGray"
                             TickBrush="Gainsboro"
                             ScaleTickBrush="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                            ValueBrush="Transparent" 
+                            UnitBrush="White"
                             NeedleWidth="0" 
                             TickLength="0" 
                             NeedleLength="0"
@@ -105,7 +107,7 @@
                             ValueStringFormat=" ">
                         </controls:RadialGauge>
                         <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="-20 -10 0 20"
-                         FontSize="60" Text="{x:Bind ViewModel.BatteryPercent, Mode=OneWay, Converter={StaticResource BatteryPercentageConverter}}">
+                         FontSize="50" Text="{x:Bind ViewModel.BatteryPercent, Mode=OneWay, Converter={StaticResource BatteryPercentageConverter}}">
                         </TextBlock>
 
                         <!-- Column 2 layout-->
