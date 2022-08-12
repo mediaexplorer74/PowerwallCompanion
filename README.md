@@ -19,9 +19,6 @@ My idea to adapt this cool app to old sweet Win10Mobile os's conditions: bad and
 You may want to pick up a cheap Windows Phone on eBay and use this app as a permanent monitor for your battery and solar system. 
 
 
-## Screenshots
-![Screenshot1](Images/shot1.png)
-
 ## My 2 cents
 
 - Min. supported Windows version decreased to 15063;
